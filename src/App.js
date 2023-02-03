@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUser, deleteUser, postUser } from "./services/userService";
 import "../src/styles/index.css";
+import { ToastContainer, toast } from "react-toastify";
 function App() {
   const [listUser, setListUser] = useState([]);
   const [userName, setUserName] = useState();
@@ -13,22 +14,32 @@ function App() {
   }
   // delete user
   const handleDelete = (index) => {
-    deleteUser(index);
+    deleteUser(index).then(() => {
+      toast.success("Successfully !!!");
+    });
     getData();
   };
   // post user
-  const handleSubmit = () => {
-    postUser(userName)
-      .then((res) => {
-        console.log(res);
-        getData();
-        setUserName("");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const handleAddName = () => {
+    if (userName) {
+      postUser(userName)
+        .then((res) => {
+          getData();
+          setUserName("");
+          console.log(res);
+          toast.success(`Add ${res.data.name} successfully`);
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("Add failed !!!");
+        });
+    } else {
+      toast.error("Empty value !!");
+      return;
+    }
   };
   // put user
+
   const element = listUser.map((data, index) => {
     return (
       <tbody key={data.id}>
@@ -46,8 +57,11 @@ function App() {
   return (
     <div className="App">
       <div>
+        <ToastContainer />
+      </div>
+      <div>
         <input value={userName} onChange={(e) => setUserName(e.target.value)} />
-        <button onClick={handleSubmit}>Add User</button>
+        <button onClick={handleAddName}>Add Name User</button>
       </div>
       <table>
         <thead>
